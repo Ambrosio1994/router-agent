@@ -133,27 +133,27 @@ def write_memory(state: State, config: RunnableConfig, store: BaseStore):
         None: Esta função não retorna valores, apenas atualiza o armazenamento
     """
     
-    # Get the user ID from the config
+    # Obtém o ID do usuário da configuração
     user_id = config["configurable"]["user_id"]
 
-    # Retrieve existing memory from the store
+    # Recupera a memória existente do armazenamento
     namespace = ("memory", user_id)
     existing_memory = store.get(namespace, "user_memory")
         
-    # Extract the memory
+    # Extrai o conteúdo da memória
     if existing_memory:
         existing_memory_content = existing_memory.value.get('memory')
     else:
         existing_memory_content = "No existing memory found."
 
-    # Format the memory in the system prompt
+    # Formata a memória no prompt do sistema
     system_msg =  memory_prompt.format(memory=existing_memory_content)
     new_memory = llm_basic.invoke([SystemMessage(content=system_msg)]+state['messages'])
 
-    # Overwrite the existing memory in the store 
+    # Substitui a memória existente no armazenamento
     key = "user_memory"
 
-    # Write value as a dictionary with a memory key
+    # Escreve o valor como um dicionário com uma chave de memória
     store.put(namespace, key, {"memory": new_memory.content})
 
 def choose_agent(state: State):
